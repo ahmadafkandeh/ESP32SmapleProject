@@ -1,4 +1,5 @@
 #include "OnScreenKeyboard.hpp"
+#include "LVGLHandler.hpp"
 
 static void EventHandler(lv_event_t * e) {
     lv_event_code_t code = lv_event_get_code(e);
@@ -15,9 +16,9 @@ static void EventHandler(lv_event_t * e) {
     }
 }
 
-OnScreenKeyBoard *OnScreenKeyBoard::getInstance() {
+OnScreenKeyBoard &OnScreenKeyBoard::getInstance() {
     static OnScreenKeyBoard instance;
-    return &instance;
+    return instance;
 }
 
 void OnScreenKeyBoard::Init(lv_obj_t *scr) {
@@ -31,6 +32,7 @@ void OnScreenKeyBoard::Init(lv_obj_t *scr) {
         lv_obj_del(kb);
     }
     kb = lv_keyboard_create(scr);
+    lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
 }
 
 void OnScreenKeyBoard::terminate() {
@@ -41,15 +43,18 @@ void OnScreenKeyBoard::terminate() {
 }
 
 void OnScreenKeyBoard::registerObject(lv_obj_t *object) {
+    LockLVGLSafe obj =  LockLVGLSafe();
     lv_obj_add_event_cb(object, EventHandler, 
                         LV_EVENT_ALL, kb);
 }
 
 void OnScreenKeyBoard::removeObject(lv_obj_t *object) {
+    LockLVGLSafe obj =  LockLVGLSafe();
     lv_obj_remove_event_cb(object,EventHandler);
 }
 
-void OnScreenKeyBoard::setFocus(lv_obj_t *object)
-{
+void OnScreenKeyBoard::setFocus(lv_obj_t *object) {
+    LockLVGLSafe obj =  LockLVGLSafe();
     lv_keyboard_set_textarea(kb, object);
+    lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
 }

@@ -5,7 +5,7 @@
 class OnScreenKeyBoard
 {
 public:
-    static OnScreenKeyBoard * getInstance();
+    static OnScreenKeyBoard &getInstance();
     void Init(lv_obj_t * scr = NULL);
     void terminate();
     void registerObject(lv_obj_t * object);

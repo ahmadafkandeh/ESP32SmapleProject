@@ -14,11 +14,9 @@ namespace Utility
         _obj(mtx){
             assert(_obj != NULL);
             xSemaphoreTake(_obj, portMAX_DELAY);
-            Serial.println("mutex locked");
         }
         ~safe_lock_mutex() {
             xSemaphoreGive(_obj);
-            Serial.println("lock released");
         }
         private:
         SemaphoreHandle_t _obj;

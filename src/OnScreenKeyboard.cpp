@@ -7,6 +7,7 @@ static void EventHandler(lv_event_t * e) {
     lv_obj_t * kb = (lv_obj_t *)lv_event_get_user_data(e);
     if(code == LV_EVENT_FOCUSED) {
         lv_keyboard_set_textarea(kb, ta);
+        lv_obj_move_foreground(kb);
         lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
     }
 

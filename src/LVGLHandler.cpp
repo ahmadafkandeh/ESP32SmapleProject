@@ -2,10 +2,10 @@
 
 LockLVGLSafe::LockLVGLSafe() {
     LV_ASSERT(LVGLHandler::getInstance().lvgl_mutex != NULL);
-    xSemaphoreTake(LVGLHandler::getInstance().lvgl_mutex, portMAX_DELAY);
+    xSemaphoreTakeRecursive(LVGLHandler::getInstance().lvgl_mutex, portMAX_DELAY);
 }
 LockLVGLSafe::~LockLVGLSafe() {
-    xSemaphoreGive(LVGLHandler::getInstance().lvgl_mutex);
+    xSemaphoreGiveRecursive(LVGLHandler::getInstance().lvgl_mutex);
 }
 
 LVGLHandler & LVGLHandler::getInstance()
@@ -21,7 +21,7 @@ void LVGLHandler::Init()
     // setting up LVGL
     lv_init();
     isInitialized = true;
-    lvgl_mutex = xSemaphoreCreateMutex();
+    lvgl_mutex = xSemaphoreCreateRecursiveMutex();
 
     LV_ASSERT( lvgl_mutex != NULL );
 
@@ -55,7 +55,7 @@ void LVGLHandler::Init()
 
 void LVGLHandler::terminate() {
     if(isInitialized) {
-        xSemaphoreTake(lvgl_mutex, portMAX_DELAY);
+        xSemaphoreTakeRecursive(lvgl_mutex, portMAX_DELAY);
         lv_deinit();
         vSemaphoreDelete(lvgl_mutex);
         lvgl_mutex = NULL;

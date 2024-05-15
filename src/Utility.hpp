@@ -21,6 +21,19 @@ namespace Utility
         private:
         SemaphoreHandle_t _obj;
     };
+    struct safe_lock_mutex_recursive {
+        public:
+        safe_lock_mutex_recursive(SemaphoreHandle_t mtx):
+        _obj(mtx){
+            assert(_obj != NULL);
+            xSemaphoreTakeRecursive(_obj, portMAX_DELAY);
+        }
+        ~safe_lock_mutex_recursive() {
+            xSemaphoreGiveRecursive(_obj);
+        }
+        private:
+        SemaphoreHandle_t _obj;
+    };
 } // namespace Utility
 
 

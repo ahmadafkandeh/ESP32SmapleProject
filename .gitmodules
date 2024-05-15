@@ -1,0 +1,3 @@
+[submodule "lib/Base64EncodingDecoding"]
+	path = lib/Base64EncodingDecoding
+	url = git@github.com:ahmadafkandeh/Base64EncodingDecoding.git

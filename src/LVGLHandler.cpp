@@ -1,11 +1,19 @@
 #include "LVGLHandler.hpp"
 
-LockLVGLSafe::LockLVGLSafe() {
+LockLVGLSafe::LockLVGLSafe(char * name, int line ):
+    _name(name), _line(line){
     LV_ASSERT(LVGLHandler::getInstance().lvgl_mutex != NULL);
+    if (line)
+        Serial.printf("LVGL before taking mutex for %s from line %d\r\n", _name.c_str(), line);
     xSemaphoreTakeRecursive(LVGLHandler::getInstance().lvgl_mutex, portMAX_DELAY);
+
+    if (line)
+        Serial.printf("LVGL mutex taken for %s from line %d\r\n", _name.c_str(), line);
 }
 LockLVGLSafe::~LockLVGLSafe() {
     xSemaphoreGiveRecursive(LVGLHandler::getInstance().lvgl_mutex);
+    if (_line)
+        Serial.printf("LVGL mutex released for %s from line %d\r\n", _name.c_str(), _line);
 }
 
 LVGLHandler & LVGLHandler::getInstance()
@@ -51,13 +59,45 @@ void LVGLHandler::Init()
                                             data->point.y = touchY;
                                         }
     });
+
+    /* this function needs to be called once before calling from threads, 
+     *   other wise since it needs a huge amount of stack for first initialization, then the OS will panic. */
+    lv_task_handler(); 
+
+    xTaskCreate(
+    LVGLTask
+    ,  "lvglTsk"
+    ,  6000  // Stack size
+    ,  this // Pass reference to a variable describing the task number
+    ,  1  // Low priority
+    ,  &lvglTaskHandler
+    );
 }
 
 void LVGLHandler::terminate() {
     if(isInitialized) {
         xSemaphoreTakeRecursive(lvgl_mutex, portMAX_DELAY);
+        if(lvglTaskHandler != 0)
+        {
+            vTaskDelete(lvglTaskHandler);
+            lvglTaskHandler = 0;
+        }
         lv_deinit();
         vSemaphoreDelete(lvgl_mutex);
         lvgl_mutex = NULL;
+        isInitialized = false;
+    }
+}
+
+void LVGLHandler::LVGLTask(void *params)
+{
+    LVGLHandler * obj = (LVGLHandler *) params;
+    while(1)
+    {
+        xSemaphoreTakeRecursive(obj->lvgl_mutex, portMAX_DELAY);
+        lv_task_handler(); 
+        lv_tick_inc(50);
+        xSemaphoreGiveRecursive(obj->lvgl_mutex);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
 }

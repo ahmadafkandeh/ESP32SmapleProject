@@ -15,19 +15,26 @@ static uint8_t lvBuffer[lvBufferSize];
 class LockLVGLSafe
 {
 public:
-    LockLVGLSafe();
+    LockLVGLSafe(char* name = "", int line = 0);
     ~LockLVGLSafe();
+    int _line;
+    String _name;
 };
 
 class LVGLHandler
 {
+protected:
     SemaphoreHandle_t lvgl_mutex;
     friend LockLVGLSafe;
     bool isInitialized = false;
+    TaskHandle_t lvglTaskHandler = 0;
 public:
     static LVGLHandler & getInstance();
     void Init();
     void terminate();
+
+private:
+    static void LVGLTask(void* params);
 };
 
 #endif // !LVGL_HANDLER_H

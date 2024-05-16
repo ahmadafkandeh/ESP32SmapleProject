@@ -10,6 +10,7 @@ struct SSIDStruct
 {
     String ssid;
     String EncryptedPassword;
+    bool autoconnect = true;
 };
 class WIFIConnector
 {
@@ -22,7 +23,7 @@ protected:
     bool connect();
     bool isSelectedAPOpen();
     void scanNetworks();
-    void updateList();
+    void updateList(bool showSaved = false);
     void getCurrent();
     void clearList();
     void saveCredentials();
@@ -41,17 +42,20 @@ protected:
     lv_obj_t * txtPassword;
     lv_obj_t * chkbxAutoReconnect; 
     lv_obj_t * btnCancel;
-    lv_obj_t * btnConnect_Done;
+    lv_obj_t * btnConnect_Update;
+    lv_obj_t * lblCntUpdate;
+    lv_obj_t * btnForget;
     lv_obj_t * btnRefresh;
     lv_obj_t * mainWindowTitle;
     lv_obj_t * connectWindowTitle;
     lv_obj_t * btnClose;
-    lv_obj_t * btnSavedAPs;
+    lv_obj_t * btnShowSaved;
     String selectedSSID; 
     int foundNetworks;
     SemaphoreHandle_t _mutex;
     TaskHandle_t wifiTaskHandler;
     std::list<SSIDStruct> ssids;
+    bool showSaved = false;
 
 };
 

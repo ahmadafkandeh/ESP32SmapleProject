@@ -44,18 +44,18 @@ void OnScreenKeyBoard::terminate() {
 }
 
 void OnScreenKeyBoard::registerObject(lv_obj_t *object) {
-    LockLVGLSafe obj =  LockLVGLSafe();
+    LockLVGLSafe obj =  LockLVGLSafe(__FILENAME__, __LINE__);
     lv_obj_add_event_cb(object, EventHandler, 
                         LV_EVENT_ALL, kb);
 }
 
 void OnScreenKeyBoard::removeObject(lv_obj_t *object) {
-    LockLVGLSafe obj =  LockLVGLSafe();
+    LockLVGLSafe obj =  LockLVGLSafe(__FILENAME__, __LINE__);
     lv_obj_remove_event_cb(object,EventHandler);
 }
 
 void OnScreenKeyBoard::setFocus(lv_obj_t *object) {
-    LockLVGLSafe obj =  LockLVGLSafe();
+    LockLVGLSafe obj =  LockLVGLSafe(__FILENAME__, __LINE__);
     lv_keyboard_set_textarea(kb, object);
     lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
 }
